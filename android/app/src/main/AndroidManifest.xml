@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Motor, tipografías TTF e impulsos WAV 32-bit Float incluidos 100% offline y sin comprimir dentro del APK -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Lectura automática de canciones del teléfono -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- Reproducción y procesado global del sistema en 2° plano 24/7 y arranque automático -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Vibración física del teléfono con los golpes de graves -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Control directo del bus de audio del sistema, sesiones globales y DAC Jack 3.5 mm / USB-C -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Opcional vía ADB/Shizuku (igual que Wavelet / Poweramp EQ) para descubrir sesiones ocultas en Android 10-15 -->
+    <uses-permission
+        android:name="android.permission.DUMP"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:allowBackup="true"
+        android:extractNativeLibs="false"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.EstudioEQ">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Registra Estudio Master Hi-Res como el Ecualizador Nativo oficial del sistema Android
+                 (Spotify, YouTube Music, VLC, Ajustes de Sonido del teléfono, etc.) -->
+            <intent-filter>
+                <action android:name="android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.CATEGORY_CONTENT_MUSIC" />
+            </intent-filter>
+
+            <!-- Registra Estudio Master Hi-Res como Reproductor de Música Predeterminado de Android
+                 para abrir audios directamente desde WhatsApp, Chrome, Telegram, Archivos y Descargas -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.APP_MUSIC" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MUSIC_PLAYER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="audio/*" />
+                <data android:mimeType="application/ogg" />
+                <data android:mimeType="application/x-ogg" />
+                <data android:mimeType="application/flac" />
+                <data android:mimeType="application/x-flac" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".PlaybackService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <receiver
+            android:name=".AudioSessionReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION" />
+                <action android:name="android.media.action.CLOSE_AUDIO_EFFECT_CONTROL_SESSION" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
